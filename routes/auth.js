@@ -7,16 +7,22 @@ const router = express.Router();
 
 // Register a new user
 router.post('/register', async (req, res) => {
-    try {
+  try {
       const { username, email, password } = req.body;
+
+      const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+
+      if (existingUser) {
+          return res.status(409).json({ error: 'User with the same email or username already exists' });
+      }
+
       const role = 'standard';
       const user = await User.create({ username, email, password, role });
       res.status(201).json({ message: 'User registered successfully', user });
-    } catch (error) {
+  } catch (error) {
       res.status(400).json({ error: error.message });
-    }
-  });
-  
+  }
+});  
 
 // Login user and generate JWT token
 router.post('/login', async (req, res) => {
