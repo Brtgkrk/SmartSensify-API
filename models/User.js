@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     maxLength: 50,
+    unique: true,
   },
   email: {
     type: String,
@@ -22,6 +23,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'standard', 'premium'],
     required: true,
+    default: "standard",
   },
   premiumExpiration: {
     type: Date,
@@ -35,6 +37,48 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Sensor',
   }],
+  lastLoginDate: {
+    type: Date,
+    default: null,
+  },
+  accountStatus: {
+    type: String,
+    enum: ['active', 'suspended', 'banned'],
+    default: 'active',
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  options: {
+    language: {
+      type: String,
+      maxLength: 20,
+      default: 'en',
+    },
+    timezone: {
+      type: String,
+      maxLength: 50,
+      default: 'UTC',
+    },
+    theme: {
+      type: String,
+      enum: ['Default', 'Light', 'Dark'],
+      default: 'Default',
+    },
+    accessibilityPreferences: {
+      highContrastMode: {
+        type: Boolean,
+        default: false,
+      },
+      fontSize: {
+        type: Number,
+        default: 1,
+      },
+    },
+  },
+}, {
+  timestamps: true,
 });
 
 userSchema.pre('save', async function (next) {
