@@ -178,6 +178,10 @@ router.delete('/:sensorId', verifyToken, async (req, res) => {
 });
 
 // GET endpoint to get sensor data for a specific sensor
+// When user is not logged {
+//    "error": "Cannot read properties of null (reading '_id')"
+//}
+// Change this error to something else
 router.get('/:sensorId/data', verifyToken, async (req, res) => {
     try {
         const { sensorId } = req.params;
