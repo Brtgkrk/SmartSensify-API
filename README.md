@@ -24,7 +24,7 @@ This API serves as a backend system designed to facilitate seamless communicatio
 
 - Minor fixes in user register
 
-#### 0.2.0 "Sensors Data Update" (Current Version)
+#### 0.2.0 "Sensors Data Update"
 
 - Added timestamps to all Schemas.
 - User can now login with username and email simultaneously.
@@ -42,6 +42,11 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Added POST endpoint to /sensors/data, which accepts a secret key and sensor data.
 - Added a description field to sensors.
 - Updated sensor PUT endpoint, allowing users to update only certain fields.
+
+#### 0.2.1 (Current Version)
+
+- startDate and endDate parameters are now avaiable at /sensors/:id/data endpoint, parameters should be within user local time, hovever endpoint returns data with utc time instead.
+- Support for downloading data as csv from API (can be imported directly into Excel, PowerBI or other business inteligence aplications with link and Authentication token)
 
 ## Planned future updates
 

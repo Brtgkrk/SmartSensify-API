@@ -182,7 +182,7 @@ router.delete('/:sensorId', verifyToken, async (req, res) => {
 //    "error": "Cannot read properties of null (reading '_id')"
 //}
 // Change this error to something else
-router.get('/:sensorId/data', verifyToken, async (req, res) => {
+/*router.get('/:sensorId/data', verifyToken, async (req, res) => {
     try {
         const { sensorId } = req.params;
         const { startDate, endDate, type, location } = req.query;
@@ -195,6 +195,87 @@ router.get('/:sensorId/data', verifyToken, async (req, res) => {
         const sensorData = await SensorData.find({ sensorId });
 
         res.json(sensorData);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});*/
+
+router.get('/:sensorId/data', verifyToken, async (req, res) => {
+    try {
+        const { sensorId } = req.params;
+        const { startDate, endDate, type, location, format } = req.query;
+        const sensor = await Sensor.findById(sensorId);
+
+        // If the sensor is not public, check user authentication
+        if (!sensor.isPublic && !req.user) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        if (!sensor.isPublic && !req.user.sensors.includes(sensorId)) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        // Construct the date filter based on the provided startDate and endDate
+        const dateFilter = {};
+
+        if (startDate) {
+            dateFilter.$gte = new Date(startDate);
+        }
+
+        if (endDate) {
+            dateFilter.$lte = new Date(endDate);
+        }
+
+        // Include date filter in the query only if at least one of startDate or endDate is provided
+        const sensorDataQuery = {
+            sensorId,
+        };
+
+        if (Object.keys(dateFilter).length > 0) {
+            sensorDataQuery.timestamp = dateFilter;
+        }
+
+        const sensorData = await SensorData.find(sensorDataQuery);
+
+        if (format && format.toLowerCase() === 'csv') {
+            // Convert JSON to CSV and send as a downloadable file
+            const csvRows = [];
+
+            // Add header row
+            const headerRow = ['Timestamp'];
+            const typeSet = new Set();
+            sensorData.forEach(data => {
+                data.readings.forEach(reading => {
+                    typeSet.add(reading.type);
+                });
+            });
+            const uniqueTypes = Array.from(typeSet);
+            headerRow.push(...uniqueTypes);
+
+            csvRows.push(headerRow);
+
+            // Add data rows
+            sensorData.forEach(data => {
+                const dataRow = [data.timestamp.toISOString()];
+
+                uniqueTypes.forEach(type => {
+                    const reading = data.readings.find(r => r.type === type);
+                    dataRow.push(reading ? reading.value : '');
+                });
+
+                csvRows.push(dataRow);
+            });
+
+            // Convert to CSV string
+            const csvString = csvRows.map(row => row.join(',')).join('\n');
+
+            // Send as a downloadable file
+            res.attachment('sensor_data.csv');
+            res.status(200).send(csvString);
+        } else {
+            // Send JSON response
+            res.json(sensorData);
+        }
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
