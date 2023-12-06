@@ -1,52 +1,125 @@
-// models/sensor.js
-
 const mongoose = require('mongoose');
 
 const sensorSchema = new mongoose.Schema({
-    name: {
+  name: {
+    type: String,
+    required: true,
+    maxlength: 50,
+    description: 'Name of the device',
+  },
+  description: {
+    type: String,
+    maxlength: 500,
+    description: 'Description of the device',
+  },
+  secretKey: {
+    type: String,
+    required: true,
+    unique: true,
+    maxlength: 50,
+    description: 'Secret key for the device',
+  },
+  isPublic: {
+    type: Boolean,
+    description: 'Indicates whether the sensor is public',
+    default: false,
+  },
+  types: {
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'SensorType',
+    }],
+    description: 'Array of sensor types',
+  },
+  alerts: {
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Alert',
+    }],
+    description: 'Array of alert IDs associated with the sensor',
+  },
+  lastSettingsUpdateTimestamp: {
+    type: Date,
+    description: 'Timestamp of the last settings update',
+  },
+  settings: {
+    type: [{
+      name: {
         type: String,
-        maxLength: 200,
-        required: true,
-    },
-    description: {
+        description: 'Setting name',
+      },
+      value: {
         type: String,
-        maxLength: 1000,
-    },
-    secretKey: {
+        description: 'Setting value',
+      },
+      valueType: {
         type: String,
-        maxLength: 100,
-        required: true,
-        unique: true,
-    },
-    type: {
-        type: [String],
-        required: true,
-    },
-    isPublic: {
-        type: Boolean,
-        default: false,
-    },
-    owner: {
+        enum: ['Integer', 'Bool', 'Double', 'String'],
+        description: 'Type of the setting value',
+      },
+    }],
+    maxItems: 100,
+    description: 'Array of sensor settings',
+  },
+  lastLogs: {
+    type: [{
+      timestamp: {
+        type: Date,
+        description: 'Timestamp of the log entry',
+      },
+      message: {
         type: String,
-    },
-},
-    {
-        timestamps: true,
-    });
+        maxlength: 50,
+        description: 'Log message',
+      },
+    }],
+    maxItems: 1000,
+    description: 'Array of last sensor logs',
+  },
+  errors: {
+    type: [{
+      timestamp: {
+        type: Date,
+        description: 'Timestamp of the error',
+      },
+      message: {
+        type: String,
+        maxlength: 50,
+        description: 'Error message',
+      },
+    }],
+    maxItems: 1000,
+    description: 'Array of sensor errors',
+  },
+  defaultLocation: {
+    type: [{
+      latitude: {
+        type: Number,
+        description: 'Latitude coordinate with maximum precision',
+      },
+      longitude: {
+        type: Number,
+        description: 'Longitude coordinate with maximum precision',
+      },
+    }],
+    description: 'Array representing the default location of the sensor',
+  },
+  batteryStatus: {
+    type: [{
+      timestamp: {
+        type: Date,
+        description: 'Timestamp of the battery status entry',
+      },
+      status: {
+        type: Number,
+        min: 0,
+        max: 100,
+        description: 'Battery status percentage (0-100)',
+      },
+    }],
+    maxItems: 200,
+    description: 'Array of battery status entries',
+  },
+});
 
-sensorSchema.statics.isOwnedByUser = async function (sensorId, userId) {
-    try {
-        const user = await User.findById(userId);
-        if (user && user.sensors.includes(sensorId)) {
-            return true; // Sensor is owned by the user
-        }
-        return false; // Sensor is not owned by the user or user not found
-    } catch (error) {
-        return false; // Error occurred or user not found
-    }
-};
-
-
-const Sensor = mongoose.model('Sensor', sensorSchema);
-
-module.exports = Sensor
+module.exports = mongoose.model('Sensor', sensorSchema);

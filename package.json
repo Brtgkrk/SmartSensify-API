@@ -1,6 +1,6 @@
 {
   "name": "smartsensify-api",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "start": "node app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Jakub Krok",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",

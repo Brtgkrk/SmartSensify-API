@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const sensorRoutes = require('./routes/sensors');
 const userRoutes = require('./routes/users');
 const sensorDataRouter = require('./routes/sensorData');
+const organizations = require('./routes/organizations');
 require('dotenv').config();
 
 const app = express();
@@ -27,3 +28,4 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/sensors', sensorRoutes);
 app.use('/api/sensors/data', sensorDataRouter);
+app.use('/api/organizations', organizations);
