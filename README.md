@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.2.0**
+> Curent version of API: **0.3.0**
 
 ### Features
 
@@ -43,25 +43,16 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Added a description field to sensors.
 - Updated sensor PUT endpoint, allowing users to update only certain fields.
 
-#### 0.2.1 (Current Version)
+#### 0.2.1
 
 - startDate and endDate parameters are now avaiable at /sensors/:id/data endpoint, parameters should be within user local time, hovever endpoint returns data with utc time instead.
 - Support for downloading data as csv from API (can be imported directly into Excel, PowerBI or other business inteligence aplications with link and Authentication token)
 
+#### 0.3.0 "Organizations Update" (Current Version)
+
+- Added organizations.
+
 ## Planned future updates
-
-##### 0.2.x
-
-- Add filter options to sensorData (including type and time interval).
-- Readings field should be without an id and version in the database. 
-- Add the option to generate a new secret key.
-- Automatic type updating for sensors.
-- User ~~PUT~~ PATCH endpoint should return changed settings / fields.
-
-#### 0.3.0 "Organizations Update"
-
-- Add organizations.
-- Add admins/moderator to organizations and provide option for users and sensors administration
 
 #### 0.4.0 "Alert Update"
 

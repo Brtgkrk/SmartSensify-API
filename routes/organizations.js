@@ -56,7 +56,6 @@ router.get('/:organizationId', verifyToken, async (req, res) => {
     }
 });
 
-
 // Create a new organization
 router.post('/', verifyToken, async (req, res) => {
     let newOrganization;
@@ -90,67 +89,73 @@ router.post('/', verifyToken, async (req, res) => {
     }
 });
 
-/*
-// Modify an existing sensor
-router.patch('/:sensorId', verifyToken, async (req, res) => {
-    const { sensorId } = req.params;
+// Modify an existing organization
+router.patch('/:organizationId', verifyToken, async (req, res) => {
+    const { organizationId } = req.params;
     try {
         if (!req.user) {
-            return res.status(401).json({ error: 'Please log in to update a sensor.' });
+            return res.status(401).json({ error: 'Please log in to update a oragnization.' });
         }
 
-        if (!req.user.sensors.includes(sensorId)) {
+        const organization = await Organization.findById(organizationId);
+
+        if (!organization) return res.status(404).json({ error: 'Organization not found' });
+        
+        if (req.user.role === 'admin' || organization.users.find(user => user.userId.equals(req.user._id) && user.role === 'owner')) {
+            const { name, description, isPublic, phone, email, address } = req.body;
+            const updateFields = {};
+            if (name) updateFields.name = name;
+            if (description) updateFields.description = description;
+            if (isPublic !== undefined) updateFields.isPublic = isPublic;
+            if (phone) updateFields.phone = phone;
+            if (email) updateFields.email = email;
+            if (address) updateFields.address = address;
+
+            const updatedOrganization = await Organization.findOneAndUpdate(
+                { _id: organizationId },
+                { $set: updateFields },
+                { new: true, runValidators: true }
+            );
+
+            if (!updatedOrganization) {
+                return res.status(404).json({ error: 'Organization not found' });
+            }
+    
+            return res.json({ organization: updatedOrganization });
+        } else {
             return res.status(403).json({ error: 'Access denied' });
         }
-
-        const { name, description, isPublic } = req.body;
-        const updateFields = {};
-
-        if (name) {
-            updateFields.name = name;
-        }
-        if (description) {
-            updateFields.description = description;
-        }
-        if (isPublic !== undefined) {
-            updateFields.isPublic = isPublic;
-        }
-
-        const updatedSensor = await Sensor.findByIdAndUpdate(
-            sensorId,
-            updateFields,
-            { new: true }
-        );
-
-        res.json({ message: 'Sensor updated successfully', sensor: updatedSensor });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
 
 
-// Delete a sensor
-router.delete('/:sensorId', verifyToken, async (req, res) => {
-    const { sensorId } = req.params;
+// Delete an organization
+router.delete('/:organizationId', verifyToken, async (req, res) => {
     try {
-        if (!req.user) {
-            return res.status(401).json({ error: 'Please log in to delete a sensor.' });
+      const organizationId = req.params.organizationId;
+  
+      const organization = await Organization.findById(organizationId);
+  
+      if (!organization) {
+        return res.status(404).json({ error: 'Organization not found' });
+      }
+
+      if (req.user.role === 'admin' || organization.users.find(user => user.userId.equals(req.user._id) && user.role === 'owner')) {
+        
+        if (organization.users.some(user => user.role !== 'owner')) {
+          return res.status(403).json({ error: 'Cannot delete organization with users having roles other than owner' });
         }
-
-        if (!req.user.sensors.includes(sensorId)) {
-            return res.status(403).json({ error: 'Access denied' });
-        }
-
-        await Sensor.findByIdAndDelete(sensorId);
-
-        req.user.sensors = req.user.sensors.filter((id) => id.toString() !== sensorId);
-        await req.user.save();
-
-        res.json({ message: 'Sensor deleted successfully' });
+  
+        await Organization.findByIdAndDelete(organizationId);
+        return res.json({ message: 'Organization deleted successfully' });
+      } else {
+        return res.status(403).json({ error: 'Access denied' });
+      }
     } catch (error) {
-        res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: 'Internal server error' });
     }
-});
-*/
+  });
 
 module.exports = router;
