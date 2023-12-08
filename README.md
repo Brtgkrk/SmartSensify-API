@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.3.0**
+> Curent version of API: **0.3.1**
 
 ### Features
 
@@ -48,9 +48,13 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - startDate and endDate parameters are now avaiable at /sensors/:id/data endpoint, parameters should be within user local time, hovever endpoint returns data with utc time instead.
 - Support for downloading data as csv from API (can be imported directly into Excel, PowerBI or other business inteligence aplications with link and Authentication token)
 
-#### 0.3.0 "Organizations Update" (Current Version)
+#### 0.3.0 "Organizations Update"
 
-- Added organizations.
+- Added organizations managing.
+
+#### 0.3.1  (Current Version)
+
+- Added groups managing
 
 ## Planned future updates
 
@@ -60,19 +64,20 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - User should have options to manage its alerts (limit alert, time alert, trend alert, conditional alert, localization alert, malfunction alert)
 - Support of different communication channels (like email, sms, mobile push or desktop notifications )
 
-#### 0.5.0 "Admin Update"
-
-- Add Administrator and moderator options, account banning, suspending  etc.
-- Add the possibility to delete User (Data anonymization).
-
-#### 0.6.0 "Sensor Update"
+#### 0.5.0 "Sensor Update"
 
 - Add status to sensors (active, inactive, faulty).
 - Add possibility for changing sensor options remotely.
 
-### 1.0.0
+#### 0.6.0 "Types Update"
 
-- Minor/Major changes, bug fixes.
+- Add official and custom types
+- Add possibility to modify custom types by user
+
+### 1.0.0 "Admin Update"
+
+- Add Administrator and moderator options, account banning, suspending  etc.
+- Add the possibility to delete User (Data anonymization).
 - Mail verification, reset password, profile/organization pictures, additional login security.
 - Additional limitations for users and sensors, API authentication.
 

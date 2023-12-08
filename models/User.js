@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Organization = require('../models/Organization');
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -33,6 +34,7 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     required: true,
+    default: true,
   },
   emailVerified: {
     type: Boolean,
@@ -92,6 +94,15 @@ const userSchema = new mongoose.Schema({
     },
   ],
 });
+
+userSchema.statics.returnOrganization = async function (userId) {
+  try {
+    const organization = await Organization.findOne({ 'users.userId': userId });
+    return organization;
+  } catch (error) {
+    throw new Error('Error checking user organization status');
+  }
+};
 
 const User = mongoose.model('User', userSchema);
 

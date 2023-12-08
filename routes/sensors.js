@@ -5,6 +5,7 @@ const verifyToken = require('../middlewares/jwtAuthMiddleware');
 const Sensor = require('../models/Sensor');
 const SensorData = require('../models/SensorData');
 const User = require('../models/User');
+const Group = require('../models/Group');
 
 const router = express.Router();
 
@@ -103,16 +104,23 @@ router.post('/', verifyToken, async (req, res) => {
             return res.status(401).json({ error: 'Please log in to create a sensor.' });
         }
 
-        const { name, type, isPublic = false } = req.body;
+        const { groupId, name, type, isPublic = false } = req.body;
         const secretKey = Math.random().toString(36).substring(2, 22);
         newSensor = await Sensor.create({ name, type, isPublic, secretKey });
 
-        req.user.sensors.push(newSensor._id);
-        await req.user.save();
+        //req.user.sensors.push(newSensor._id);
+        const group = await Group.findById(groupId);
+        if (!group /*|| !group.users.some(userId => userId.equals(req.user._id))*/) {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+        //return res.status(201).json({ message: group });
+        // Check if user is in certain group
+        group.sensors.push(newSensor._id);
+        await group.save();
 
         res.status(201).json({ message: 'Sensor created successfully', sensor: newSensor });
     } catch (error) {
-        res.status(400).json({ error: req.user });
+        res.status(400).json({ error: error.message });
     }
 });
 
