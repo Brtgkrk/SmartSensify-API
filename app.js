@@ -6,6 +6,9 @@ const authRoutes = require('./routes/auth');
 const sensorRoutes = require('./routes/sensors');
 const userRoutes = require('./routes/users');
 const sensorDataRouter = require('./routes/sensorData');
+const organizations = require('./routes/organizations');
+const groups = require('./routes/groups');
+const alerts = require('./routes/alerts');
 require('dotenv').config();
 
 const app = express();
@@ -27,3 +30,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/sensors', sensorRoutes);
 app.use('/api/sensors/data', sensorDataRouter);
+app.use('/api/organizations', organizations);
+app.use('/api/groups', groups);
+app.use('/api/alerts', alerts);

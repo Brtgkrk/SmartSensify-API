@@ -5,6 +5,7 @@ const verifyToken = require('../middlewares/jwtAuthMiddleware');
 const Sensor = require('../models/Sensor');
 const SensorData = require('../models/SensorData');
 const User = require('../models/User');
+const Group = require('../models/Group');
 
 const router = express.Router();
 
@@ -103,16 +104,23 @@ router.post('/', verifyToken, async (req, res) => {
             return res.status(401).json({ error: 'Please log in to create a sensor.' });
         }
 
-        const { name, type, isPublic = false } = req.body;
+        const { groupId, name, type, isPublic = false } = req.body;
         const secretKey = Math.random().toString(36).substring(2, 22);
         newSensor = await Sensor.create({ name, type, isPublic, secretKey });
 
-        req.user.sensors.push(newSensor._id);
-        await req.user.save();
+        //req.user.sensors.push(newSensor._id);
+        const group = await Group.findById(groupId);
+        if (!group /*|| !group.users.some(userId => userId.equals(req.user._id))*/) {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+        //return res.status(201).json({ message: group });
+        // Check if user is in certain group
+        group.sensors.push(newSensor._id);
+        await group.save();
 
         res.status(201).json({ message: 'Sensor created successfully', sensor: newSensor });
     } catch (error) {
-        res.status(400).json({ error: req.user });
+        res.status(400).json({ error: error.message });
     }
 });
 
@@ -162,43 +170,36 @@ router.delete('/:sensorId', verifyToken, async (req, res) => {
             return res.status(401).json({ error: 'Please log in to delete a sensor.' });
         }
 
-        if (!req.user.sensors.includes(sensorId)) {
-            return res.status(403).json({ error: 'Access denied' });
-        }
+        await Group.find({ users: req.user._id })
+            .then(groups => {
+                if (groups.length === 0) {
+                    return Promise.reject({ status: 403, message: 'Access denied - no groups found for the user.' });
+                }
+                groups.forEach(group => {
+                    const sensorIndex = group.sensors.indexOf(sensorId);
+                    if (sensorIndex !== -1) {
+                        group.sensors.splice(sensorIndex, 1);
+                    }
+                });
+                const promises = groups.map(group => group.save());
+                return Promise.all(promises);
+            })
+            .catch(error => {
+                if (error.status === 403) {
+                    res.status(403).send(error.message);
+                } else {
+                    console.error('Error removing sensor from user groups:', error);
+                    res.status(500).send('Internal Server Error');
+                }
+            });
 
         await Sensor.findByIdAndDelete(sensorId);
-
-        req.user.sensors = req.user.sensors.filter((id) => id.toString() !== sensorId);
-        await req.user.save();
 
         res.json({ message: 'Sensor deleted successfully' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
-
-// GET endpoint to get sensor data for a specific sensor
-// When user is not logged {
-//    "error": "Cannot read properties of null (reading '_id')"
-//}
-// Change this error to something else
-/*router.get('/:sensorId/data', verifyToken, async (req, res) => {
-    try {
-        const { sensorId } = req.params;
-        const { startDate, endDate, type, location } = req.query;
-        const loggedInUserId = req.user._id;
-
-        if (!req.user.sensors.includes(sensorId)) {
-            return res.status(403).json({ error: 'Access denied' });
-        }
-
-        const sensorData = await SensorData.find({ sensorId });
-
-        res.json(sensorData);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});*/
 
 router.get('/:sensorId/data', verifyToken, async (req, res) => {
     try {

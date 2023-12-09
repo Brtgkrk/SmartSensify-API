@@ -1,12 +1,19 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const Organization = require('../models/Organization');
 
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
+    maxLength: 20,
+  },
+  firstName: {
+    type: String,
     maxLength: 50,
-    unique: true,
+  },
+  lastName: {
+    type: String,
+    maxLength: 50,
   },
   email: {
     type: String,
@@ -21,9 +28,23 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'standard', 'premium'],
+    enum: ['standard', 'developer', 'admin'],
     required: true,
-    default: "standard",
+  },
+  isActive: {
+    type: Boolean,
+    required: true,
+    default: true,
+  },
+  emailVerified: {
+    type: Boolean,
+    required: true,
+  },
+  lastLogin: {
+    type: Date,
+  },
+  groups: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
   },
   premiumExpiration: {
     type: Date,
@@ -31,67 +52,92 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     maxLength: 15,
-    match: /^[0-9]{9,15}$/,
+    pattern: '^[0-9]{9,15}$',
   },
-  sensors: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Sensor',
-  }],
-  lastLoginDate: {
-    type: Date,
-    default: null,
+  customSensorTypes: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SensorType' }],
   },
-  accountStatus: {
-    type: String,
-    enum: ['active', 'suspended', 'banned'],
-    default: 'active',
-  },
-  emailVerified: {
-    type: Boolean,
-    default: false,
-  },
-  options: {
-    language: {
-      type: String,
-      maxLength: 20,
-      default: 'en',
-    },
-    timezone: {
-      type: String,
-      maxLength: 50,
-      default: 'UTC',
-    },
-    theme: {
-      type: String,
-      enum: ['Default', 'Light', 'Dark'],
-      default: 'Default',
-    },
-    accessibilityPreferences: {
-      highContrastMode: {
-        type: Boolean,
-        default: false,
+  preferences: [
+    {
+      timezone: {
+        type: String,
       },
-      fontSize: {
+      language: {
+        type: String,
+      },
+      profileImage: {
+        type: String,
+      },
+    },
+  ],
+  address: [
+    {
+      buildingNumber: {
         type: Number,
-        default: 1,
+      },
+      street: {
+        type: String,
+        maxLength: 50,
+      },
+      city: {
+        type: String,
+        maxLength: 50,
+      },
+      country: {
+        type: String,
+        maxLength: 50,
+      },
+      postalCode: {
+        type: String,
+        maxLength: 20,
       },
     },
-  },
-}, {
-  timestamps: true,
+  ],
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.statics.returnOrganization = async function (userId) {
   try {
-    if (this.isModified('password')) {
-      const salt = await bcrypt.genSalt(10);
-      this.password = await bcrypt.hash(this.password, salt);
-    }
-    next();
+    const organization = await Organization.findOne({ 'users.userId': userId });
+    return organization;
   } catch (error) {
-    next(error);
+    throw new Error('Error checking user organization status');
   }
-});
+};
+
+userSchema.statics.getAllSensors = async function (userId) {
+  try {
+    const user = await this.findById(userId).populate('groups');
+
+    const allSensors = [];
+    user.groups.forEach(group => {
+      group.sensors.forEach(sensor => {
+        allSensors.push(sensor);
+      });
+    });
+
+    const sensorsDetails = await Sensor.find({ _id: { $in: allSensors } });
+
+    return sensorsDetails;
+  } catch (error) {
+    throw new Error('Error fetching user sensors');
+  }
+};
+
+userSchema.statics.hasSensor = async function (userId, sensorId) {
+  try {
+    const user = await this.findById(userId).populate('groups');
+    
+    for (const group of user.groups) {
+      if (group.sensors.includes(sensorId)) {
+        return true;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    throw new Error('Error checking if user has a certain sensor');
+  }
+};
 
 const User = mongoose.model('User', userSchema);
 
