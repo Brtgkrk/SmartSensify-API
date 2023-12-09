@@ -9,6 +9,35 @@ const Sensor = require('../models/Sensor');
 
 const router = express.Router();
 
+// Get information about a specific group
+router.get('/:groupId', verifyToken, async (req, res) => {
+    try {
+        const groupId = req.params.groupId;
+
+        const group = await Group.findById(groupId)
+            //.populate('users') // Populate the 'users' field with user details
+            //.populate('sensors'); // Populate the 'sensors' field with sensor details
+
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+
+        // Check if the user is authorized to view this group
+        if (
+            req.user.role === 'admin' ||
+            group.users.map(user => user._id.toString()).includes(req.user._id.toString())
+        ) {
+            return res.json({ group });
+        } else {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 // Get all groups of a certain user
 router.get('/', verifyToken, async (req, res) => {
     try {
@@ -51,14 +80,14 @@ router.get('/:groupId/users', verifyToken, async (req, res) => {
 
         const userIds = group.users;
 
-        const users = await User.find({ _id: { $in: userIds } });
+        const users = await User.find({ _id: { $in: userIds } })
+            .select('_id username email isActive');
 
         return res.json({ users });
     } catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 
 // Get groups of an organization
 router.get('/:organizationId/groups', verifyToken, async (req, res) => {
@@ -164,20 +193,20 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // Update a group's information
-router.patch('groups/:groupId', verifyToken, async (req, res) => {
+router.patch('/:groupId', verifyToken, async (req, res) => {
     try {
-        const organizationId = req.params.organizationId;
         const groupId = req.params.groupId;
         const { name, description } = req.body;
 
-        const organization = await Organization.findById(organizationId);
+        const group = await Group.findById(groupId);
 
-        if (!organization) {
-            return res.status(404).json({ error: 'Organization not found' });
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
         }
 
         // Check if the user is authorized to update the group
-        if (req.user.role === 'admin' || organization.users.some(user => user.userId.equals(req.user._id) && user.role === 'owner')) {
+        
+        if (req.user.role === 'admin' || group.users.map(user => user._id.toString()).includes(req.user._id.toString())) {
             const group = await Group.findByIdAndUpdate(groupId, { name, description }, { new: true });
 
             if (!group) {
@@ -194,31 +223,31 @@ router.patch('groups/:groupId', verifyToken, async (req, res) => {
 });
 
 // Delete a group
-router.delete('groups/:groupId', verifyToken, async (req, res) => {
+router.delete('/:groupId', verifyToken, async (req, res) => {
     try {
-        const organizationId = req.params.organizationId;
         const groupId = req.params.groupId;
 
-        const organization = await Organization.findById(organizationId);
+        const group = await Group.findById(groupId);
+        const user = await User.findById(req.user._id);
 
-        if (!organization) {
-            return res.status(404).json({ error: 'Organization not found' });
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
         }
 
         // Check if the user is authorized to delete the group
-        if (req.user.role === 'admin' || organization.users.some(user => user.userId.equals(req.user._id) && user.role === 'owner')) {
+        if (user.role === 'admin' || group.users.map(user => user._id.toString()).includes(req.user._id.toString())) {
             const group = await Group.findByIdAndDelete(groupId);
 
             if (!group) {
                 return res.status(404).json({ error: 'Group not found' });
             }
 
-            // Remove the group from the organization
-            organization.groups = organization.groups.filter(g => !g.equals(groupId));
-            await organization.save();
+            // Remove the group from the user
+            user.groups = user.groups.filter(g => !g.equals(groupId));
+            await user.save();
 
             // Remove the group from users
-            await User.updateMany({ 'groups.groupId': groupId }, { $pull: { groups: { groupId } } });
+            //await User.updateMany({ 'groups.groupId': groupId }, { $pull: { groups: { groupId } } });
 
             return res.json({ message: 'Group deleted successfully' });
         } else {

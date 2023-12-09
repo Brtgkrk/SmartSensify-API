@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.3.1**
+> Curent version of API: **0.3.3**
 
 ### Features
 
@@ -52,9 +52,22 @@ This API serves as a backend system designed to facilitate seamless communicatio
 
 - Added organizations managing.
 
-#### 0.3.1  (Current Version)
+#### 0.3.1
 
 - Added groups managing
+
+#### 0.3.2
+
+- Getting all users in certain group endpoint 
+- Getting all group sensors endpoint
+- Getting all groups that provided user is in endpoint
+- Changes in sensor creation code
+
+#### 0.3.3  (Current Version)
+
+- Added endpoint for checking details of certain group
+- Return all group users endpoint returns now only few fields
+- PATCH and DELETE endpoint for groups created
 
 ## Planned future updates
 
@@ -80,10 +93,6 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Add the possibility to delete User (Data anonymization).
 - Mail verification, reset password, profile/organization pictures, additional login security.
 - Additional limitations for users and sensors, API authentication.
-
-#### 1.1.0
-
-- Add Gravatar integration.
 - Add payment methods for buying premium.
 
 ---
