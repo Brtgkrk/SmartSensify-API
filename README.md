@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.2.0**
+> Curent version of API: **0.4.1**
 
 ### Features
 
@@ -43,51 +43,59 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Added a description field to sensors.
 - Updated sensor PUT endpoint, allowing users to update only certain fields.
 
-#### 0.2.1 (Current Version)
+#### 0.2.1
 
 - startDate and endDate parameters are now avaiable at /sensors/:id/data endpoint, parameters should be within user local time, hovever endpoint returns data with utc time instead.
 - Support for downloading data as csv from API (can be imported directly into Excel, PowerBI or other business inteligence aplications with link and Authentication token)
 
-## Planned future updates
+### 0.3.0 "Organizations Update"
 
-##### 0.2.x
+- Added organizations managing.
 
-- Add filter options to sensorData (including type and time interval).
-- Readings field should be without an id and version in the database. 
-- Add the option to generate a new secret key.
-- Automatic type updating for sensors.
-- User ~~PUT~~ PATCH endpoint should return changed settings / fields.
+#### 0.3.1
 
-#### 0.3.0 "Organizations Update"
+- Added groups managing
 
-- Add organizations.
-- Add admins/moderator to organizations and provide option for users and sensors administration
+#### 0.3.2
 
-#### 0.4.0 "Alert Update"
+- Getting all users in certain group endpoint 
+- Getting all group sensors endpoint
+- Getting all groups that provided user is in endpoint
+- Changes in sensor creation code
+
+#### 0.3.3
+
+- Added endpoint for checking details of certain group
+- Return all group users endpoint returns now only few fields
+- PATCH and DELETE endpoint for groups created
+
+### 0.4.0 "Alert Update"
 
 - Add Alerts.
-- User should have options to manage its alerts (limit alert, time alert, trend alert, conditional alert, localization alert, malfunction alert)
-- Support of different communication channels (like email, sms, mobile push or desktop notifications )
+- GET, POST, PATCH, DELETE endpoints for alerts added
 
-#### 0.5.0 "Admin Update"
+#### 0.4.1 (Current Version)
 
-- Add Administrator and moderator options, account banning, suspending  etc.
-- Add the possibility to delete User (Data anonymization).
+- Sending mails when alert condition met
+
+## Planned future updates
+
+#### 0.5.0 "Types Update"
+
+- Add official and custom types
+- Add possibility to modify custom types by user
 
 #### 0.6.0 "Sensor Update"
 
 - Add status to sensors (active, inactive, faulty).
 - Add possibility for changing sensor options remotely.
 
-### 1.0.0
+### 1.0.0 "Admin Update"
 
-- Minor/Major changes, bug fixes.
+- Add Administrator and moderator options, account banning, suspending  etc.
+- Add the possibility to delete User (Data anonymization).
 - Mail verification, reset password, profile/organization pictures, additional login security.
 - Additional limitations for users and sensors, API authentication.
-
-#### 1.1.0
-
-- Add Gravatar integration.
 - Add payment methods for buying premium.
 
 ---

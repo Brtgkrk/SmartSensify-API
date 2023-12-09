@@ -59,11 +59,14 @@ router.post('/', verifyToken, async (req, res) => {
             return res.status(400).json({ error: 'Invalid sensor type' });
         }
 
+        const emails = [req.user.email];
+
         const newAlert = await Alert.create({
             sensorType,
             condition,
             conditionNumber,
-            action
+            action,
+            emails
         });
 
         sensor.alerts.push(newAlert._id);

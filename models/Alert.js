@@ -39,6 +39,11 @@ const alertSchema = new mongoose.Schema({
         }],
         required: true,
         description: 'Array of timestamped messages'
+    },
+    emails: {
+        type: [String], // Array of strings representing emails
+        required: true,
+        description: 'Array of email addresses to notify'
     }
 });
 
