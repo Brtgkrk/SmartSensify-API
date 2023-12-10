@@ -6,6 +6,8 @@ const router = express.Router();
 const Sensor = require('../models/Sensor');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 
 // POST endpoint to add data to SensorData
 router.post('/', async (req, res) => {
@@ -21,7 +23,6 @@ router.post('/', async (req, res) => {
     // Create a new SensorData object and save it
     const newSensorData = new SensorData(data);
     await newSensorData.save();
-
 
     // Process sensor data
     try {
@@ -42,12 +43,24 @@ router.post('/', async (req, res) => {
           if (conditionMet) {
 
             // Send email to sensor owner
-            //const sensor = await Sensor.findById(sensorId);
-            const emails = alert.emails; // Assuming alert.emails is an array of email addresses
+            const emails = alert.emails;
+
+            const templatePath = path.join(__dirname, '../templates/mail-alert.html');
+            const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
+
+            const templateWithData = htmlTemplate
+              .replaceAll('{username}', 'John Doe')
+              .replaceAll('sensor.name', sensor.name)
+              .replaceAll('{sensor.id}', sensor._id)
+              .replaceAll('{reading.type}', reading.type)
+              .replaceAll('{alert.condition}', alert.condition)
+              .replaceAll('{alert.conditionNumber}', alert.conditionNumber)
+              .replaceAll('{reading.unit}', reading.unit)
+              .replaceAll('{reading.value}', reading.value);
 
             for (const ownerEmail of emails) {
               const subject = `Alert: ${reading.type} is ${alert.condition} ${alert.conditionNumber}`;
-              const message = `${reading.type} is ${alert.condition} ${alert.conditionNumber}: ${reading.value}`;
+              const message = templateWithData/*`${reading.type} is ${alert.condition} ${alert.conditionNumber}: ${reading.value}`*/;
 
               await sendEmail(ownerEmail, subject, message);
             }
@@ -89,12 +102,12 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send email
-const sendEmail = async (to, subject, message) => {
+const sendEmail = async (to, subject, htmlBody) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
     subject,
-    text: message,
+    html: htmlBody,
   };
 
   await transporter.sendMail(mailOptions);

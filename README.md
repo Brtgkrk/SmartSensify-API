@@ -16,7 +16,7 @@ This API serves as a backend system designed to facilitate seamless communicatio
 
 ## ChangeLog
 
-#### 0.1.0 "Base"
+### 0.1.0 "Base"
 
 - Initial API with support of User authentication and managing sensors
 
@@ -24,7 +24,7 @@ This API serves as a backend system designed to facilitate seamless communicatio
 
 - Minor fixes in user register
 
-#### 0.2.0 "Sensors Data Update"
+### 0.2.0 "Sensors Data Update"
 
 - Added timestamps to all Schemas.
 - User can now login with username and email simultaneously.

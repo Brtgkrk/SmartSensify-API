@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert Notification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #d9534f;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            background-color: #1C6C3E;
+            color: #fff;
+            border-radius: 5px;
+            margin: 10px 0 10px 0;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+        }
+
+        .logo {
+            width: 200px; /* Adjust the width as needed */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo.png" alt="SmartSensify Logo" class="logo">
+        <h1>Hi {username}!</h1>
+        <p>We've detected that Sensor {sensor.name} with Id <b>{sensor.id}</b> is experiencing: </p>
+        <p>{reading.type} {alert.condition} {alert.conditionNumber}{reading.unit}: {reading.value}{reading.unit}.</p>
+        <p>Click below button to check details:</p>
+        <a class="button" href="https://www.smartsensify.com" target="_blank">Check Details</a>
+        <p>If you need help or more information write to: <a href="mailto:jakub.robert.krok@gmail.com"><b>jakub.robert.krok@gmail.com</b></a></p>
+        <p>Wishing you a good day!</p>
+    </div>
+    <div class="footer">
+        <p>Powered by SmartSensify</p>
+    </div>
+</body>
+</html>
