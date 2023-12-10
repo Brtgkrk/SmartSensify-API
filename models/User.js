@@ -126,7 +126,7 @@ userSchema.statics.getAllSensors = async function (userId) {
 userSchema.statics.hasSensor = async function (userId, sensorId) {
   try {
     const user = await this.findById(userId).populate('groups');
-    
+
     for (const group of user.groups) {
       if (group.sensors.includes(sensorId)) {
         return true;
@@ -136,6 +136,15 @@ userSchema.statics.hasSensor = async function (userId, sensorId) {
     return false;
   } catch (error) {
     throw new Error('Error checking if user has a certain sensor');
+  }
+};
+
+userSchema.statics.findByGroup = async function (groupId) {
+  try {
+    const user = await this.findOne({ 'groups': { $in: [groupId] } });
+    return user;
+  } catch (error) {
+    throw new Error(`Error finding user by group ID: ${error.message}`);
   }
 };
 

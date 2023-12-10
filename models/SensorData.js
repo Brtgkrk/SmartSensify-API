@@ -20,13 +20,14 @@ const sensorDataSchema = new mongoose.Schema({
   },
   readings: [
     {
-      type: {
+      typeId: {
+        type: mongoose.Schema.Types.ObjectId,
+      },
+      typeName: {
         type: String,
-        required: true,
       },
       unit: {
         type: String,
-        required: true,
       },
       value: {
         type: String,

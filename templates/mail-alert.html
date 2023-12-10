@@ -24,7 +24,7 @@
             text-align: center;
         }
 
-        h1 {
+        .red {
             color: #d9534f;
         }
 
@@ -54,15 +54,17 @@
         .logo {
             width: 200px; /* Adjust the width as needed */
             height: auto;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="logo.png" alt="SmartSensify Logo" class="logo">
+        <img src="https://raw.githubusercontent.com/Brtgkrk/SmartSensify-API/main/templates/logo.png" alt="SmartSensify Logo" class="logo">
         <h1>Hi {username}!</h1>
-        <p>We've detected that Sensor {sensor.name} with Id <b>{sensor.id}</b> is experiencing: </p>
-        <p>{reading.type} {alert.condition} {alert.conditionNumber}{reading.unit}: {reading.value}{reading.unit}.</p>
+        <p>We've detected that Sensor <b>{sensor.name}</b></p>
+        <p>with Id <b>{sensor.id}</b> is experiencing: </p>
+        <p><b><span class="red">{reading.type} {alert.condition} {alert.conditionNumber}{reading.unit}: {reading.value}{reading.unit}.</span></b></p>
         <p>Click below button to check details:</p>
         <a class="button" href="https://www.smartsensify.com" target="_blank">Check Details</a>
         <p>If you need help or more information write to: <a href="mailto:jakub.robert.krok@gmail.com"><b>jakub.robert.krok@gmail.com</b></a></p>

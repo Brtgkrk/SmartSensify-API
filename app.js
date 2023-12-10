@@ -9,6 +9,7 @@ const sensorDataRouter = require('./routes/sensorData');
 const organizations = require('./routes/organizations');
 const groups = require('./routes/groups');
 const alerts = require('./routes/alerts');
+const officialSensorTypes = require('./routes/officialSensorTypes');
 require('dotenv').config();
 
 const app = express();
@@ -33,3 +34,4 @@ app.use('/api/sensors/data', sensorDataRouter);
 app.use('/api/organizations', organizations);
 app.use('/api/groups', groups);
 app.use('/api/alerts', alerts);
+app.use('/api/officialTypes', officialSensorTypes);

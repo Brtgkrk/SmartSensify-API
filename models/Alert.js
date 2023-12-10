@@ -44,7 +44,11 @@ const alertSchema = new mongoose.Schema({
         type: [String], // Array of strings representing emails
         required: true,
         description: 'Array of email addresses to notify'
-    }
+    },
+    username: {
+        type: String,
+        description: 'Username of the sensor owner'
+    },
 });
 
 alertSchema.statics.findSensorByAlertId = async function (alertId) {

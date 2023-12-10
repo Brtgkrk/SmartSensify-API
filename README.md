@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.4.1**
+> Curent version of API: **0.5.0**
 
 ### Features
 
@@ -74,16 +74,16 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Add Alerts.
 - GET, POST, PATCH, DELETE endpoints for alerts added
 
-#### 0.4.1 (Current Version)
+#### 0.4.1
 
 - Sending mails when alert condition met
 
+#### 0.5.0 "Types Update" (Current Version)
+
+- Add official and custom types (typeless)
+- Email sends with current username now
+
 ## Planned future updates
-
-#### 0.5.0 "Types Update"
-
-- Add official and custom types
-- Add possibility to modify custom types by user
 
 #### 0.6.0 "Sensor Update"
 

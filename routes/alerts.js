@@ -60,13 +60,16 @@ router.post('/', verifyToken, async (req, res) => {
         }
 
         const emails = [req.user.email];
+        const user = await User.findById(req.user._id);
+        const username = user.username;
 
         const newAlert = await Alert.create({
             sensorType,
             condition,
             conditionNumber,
             action,
-            emails
+            emails,
+            username,
         });
 
         sensor.alerts.push(newAlert._id);

@@ -1,9 +1,12 @@
 const express = require('express');
 const verifyToken = require('../middlewares/jwtAuthMiddleware');
 const SensorData = require('../models/SensorData');
+const OfficialSensorTypes = require('../models/officialSensorTypes');
 const Alert = require('../models/Alert');
-const router = express.Router();
 const Sensor = require('../models/Sensor');
+const User = require('../models/User');
+const Group = require('../models/Group');
+const router = express.Router();
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 const fs = require('fs');
@@ -20,37 +23,42 @@ router.post('/', async (req, res) => {
       return res.status(401).json({ error: 'Invalid secretKey' });
     }
 
-    // Create a new SensorData object and save it
+    const currentUser = await Sensor.getOwner(sensor._id);
+
+    for (const reading of data.readings) {
+      const typeId = reading.typeId;
+
+      if (typeId) {
+        const officialSensorType = await OfficialSensorTypes.findOne({ _id: typeId });
+
+        if (!officialSensorType) {
+          return res.status(400).json({ error: `Invalid typeId: ${typeId}` });
+        }
+      }
+    }
+
     const newSensorData = new SensorData(data);
     await newSensorData.save();
 
-    // Process sensor data
     try {
-      // Get alerts for the specified sensor
       const alerts = await Alert.find({ sensorType: { $in: data.readings.map(reading => reading.type) } });
 
-      // Iterate through newSensorData readings
       for (const reading of data.readings) {
-        // Find corresponding alerts for the reading type
         const matchingAlerts = alerts.filter(alert => alert.sensorType === reading.type);
 
-        // Check conditions for each matching alert
         for (const alert of matchingAlerts) {
           const conditionMet =
             (alert.condition === 'under' && parseFloat(reading.value) < alert.conditionNumber) ||
             (alert.condition === 'above' && parseFloat(reading.value) > alert.conditionNumber);
 
           if (conditionMet) {
-
-            // Send email to sensor owner
             const emails = alert.emails;
-
             const templatePath = path.join(__dirname, '../templates/mail-alert.html');
             const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 
             const templateWithData = htmlTemplate
-              .replaceAll('{username}', 'John Doe')
-              .replaceAll('sensor.name', sensor.name)
+              .replaceAll('{username}', currentUser.username)
+              .replaceAll('{sensor.name}', sensor.name)
               .replaceAll('{sensor.id}', sensor._id)
               .replaceAll('{reading.type}', reading.type)
               .replaceAll('{alert.condition}', alert.condition)
@@ -65,7 +73,6 @@ router.post('/', async (req, res) => {
               await sendEmail(ownerEmail, subject, message);
             }
 
-            // Update alert with sending information
             alert.sendings.push({
               timestamp: new Date(),
               message: `${reading.type} is ${alert.condition} ${alert.conditionNumber}: ${reading.value}`,
@@ -75,14 +82,9 @@ router.post('/', async (req, res) => {
           }
         }
       }
-
     } catch (error) {
       res.status(400).json({ message: `Error processing sensor data: ${error.message}` });
     }
-
-
-
-
     res.status(201).json({ message: 'Sensor data added successfully', data: newSensorData });
   } catch (error) {
     res.status(400).json({ error: error.message });
