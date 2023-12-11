@@ -122,7 +122,85 @@ const sensorSchema = new mongoose.Schema({
         maxItems: 200,
         description: 'Array of battery status entries',
     },
+    currentOptions: {
+        type: {
+            apiUri: {
+                type: String,
+                description: 'API URI for the current options',
+            },
+            apiVersion: {
+                type: String,
+                description: 'API version for the current options',
+            },
+            sensorId: {
+                type: String,
+                description: 'Sensor ID for the current options',
+            },
+            secretKey: {
+                type: String,
+                description: 'Secret key for the current options',
+            },
+            dataSendingFrequency: {
+                type: Number,
+                description: 'Data sending frequency for the current options',
+            },
+            isSendSensorData: {
+                type: Boolean,
+                description: 'Flag indicating whether to send sensor data for the current options',
+            },
+            serverAlwaysLive: {
+                type: Boolean,
+                description: 'Flag indicating whether the server is always live for the current options',
+            },
+        },
+        description: 'Current options for the sensor',
+    },
+    newOptions: {
+        type: {
+            apiUri: {
+                type: String,
+                description: 'API URI for the new options',
+            },
+            apiVersion: {
+                type: String,
+                description: 'API version for the new options',
+            },
+            sensorId: {
+                type: String,
+                description: 'Sensor ID for the new options',
+            },
+            secretKey: {
+                type: String,
+                description: 'Secret key for the new options',
+            },
+            dataSendingFrequency: {
+                type: Number,
+                description: 'Data sending frequency for the new options',
+            },
+            isSendSensorData: {
+                type: Boolean,
+                description: 'Flag indicating whether to send sensor data for the new options',
+            },
+            serverAlwaysLive: {
+                type: Boolean,
+                description: 'Flag indicating whether the server is always live for the new options',
+            },
+        },
+        description: 'New options for the sensor',
+    },
 });
+
+sensorSchema.methods.areOptionsEqual = function () {
+    return (
+        this.newOptions.apiUri === this.currentOptions.apiUri &&
+        this.newOptions.apiVersion === this.currentOptions.apiVersion &&
+        this.newOptions.sensorId === this.currentOptions.sensorId &&
+        this.newOptions.secretKey === this.currentOptions.secretKey &&
+        this.newOptions.dataSendingFrequency === this.currentOptions.dataSendingFrequency &&
+        this.newOptions.isSendSensorData === this.currentOptions.isSendSensorData &&
+        this.newOptions.serverAlwaysLive === this.currentOptions.serverAlwaysLive
+    );
+};
 
 sensorSchema.statics.getOwner = async function (sensorId) {
     try {

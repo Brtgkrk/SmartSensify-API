@@ -15,7 +15,7 @@ const path = require('path');
 // POST endpoint to add data to SensorData
 router.post('/', async (req, res) => {
   try {
-    const { secretKey, data } = req.body;
+    const { secretKey, data, currentSettings } = req.body;
 
     // Check if the secretKey matches the Sensor's secretKey
     const sensor = await Sensor.findOne({ secretKey, _id: data.sensorId });
@@ -23,17 +23,33 @@ router.post('/', async (req, res) => {
       return res.status(401).json({ error: 'Invalid secretKey' });
     }
 
+    const newSensor = await Sensor.findOneAndUpdate(
+      { _id: sensor._id },
+      { $set: { currentOptions: currentSettings } },
+      { new: true }
+    );
+
+    if (!data.readings) return res.status(201).json({ message: 'Settings has been changed', data: newSensor.currentOptions });
+
     const currentUser = await Sensor.getOwner(sensor._id);
 
     for (const reading of data.readings) {
       const typeId = reading.typeId;
+      const typeName = reading.typeName;
 
       if (typeId) {
         const officialSensorType = await OfficialSensorTypes.findOne({ _id: typeId });
+        // TODO: Check also in custom sensor types
 
         if (!officialSensorType) {
           return res.status(400).json({ error: `Invalid typeId: ${typeId}` });
         }
+      } else if (typeName) {
+
+        // TODO: Search trought user's types and set typeId or crete new
+
+      } else {
+        return res.status(400).json({ error: 'There is no type in one of the readings' });
       }
     }
 
@@ -85,7 +101,15 @@ router.post('/', async (req, res) => {
     } catch (error) {
       res.status(400).json({ message: `Error processing sensor data: ${error.message}` });
     }
-    res.status(201).json({ message: 'Sensor data added successfully', data: newSensorData });
+
+    let newSensorSettings;
+
+    // If sensor current settings and new settings are different 
+    if (!newSensor.areOptionsEqual()) {
+      newSensorSettings = newSensor.newOptions;
+    }
+
+    res.status(201).json({ message: 'Sensor data added successfully', data: newSensorSettings });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

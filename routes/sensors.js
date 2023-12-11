@@ -80,18 +80,18 @@ router.get('/:sensorId', verifyToken, async (req, res) => {
             return res.json({ sensor: sanitizedSensor });
         }
 
-        if (!req.user.sensors.includes(sensorId) && sensor.isPublic) {
+        if (!User.hasSensor(req.user._id, sensorId) && sensor.isPublic) {
             const sanitizedSensor = { ...sensor._doc, secretKey: undefined };
             return res.json({ sensor: sanitizedSensor });
         }
 
-        if (!req.user.sensors.includes(sensorId)) {
+        if (!User.hasSensor(req.user._id, sensorId)) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
         res.json({ sensor });
     } catch (error) {
-        res.status(500).json({ error: 'Server Error' });
+        res.status(500).json({ message: error.message });
     }
 });
 
@@ -158,6 +158,30 @@ router.patch('/:sensorId', verifyToken, async (req, res) => {
         res.json({ message: 'Sensor updated successfully', sensor: updatedSensor });
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+});
+
+// Modify existing sensor settings
+router.patch('/:sensorId/settings', verifyToken, async (req, res) => {
+    try {
+        const { newSettings } = req.body;
+        const { sensorId } = req.params;
+
+        const sensor = await Sensor.findById(sensorId);
+        if (!sensor) {
+            return res.status(404).json({ error: 'Sensor not found' });
+        }
+
+        if (!req.user || !User.hasSensor(req.user._id, sensorId)) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        sensor.newOptions = newSettings;
+        await sensor.save();
+
+        res.status(200).json({ message: 'New options updated successfully', sensor });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
