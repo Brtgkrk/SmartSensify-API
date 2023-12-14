@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.6.0**
+> Curent version of API: **0.6.1**
 
 ### Features
 
@@ -16,7 +16,7 @@ This API serves as a backend system designed to facilitate seamless communicatio
 
 ## ChangeLog
 
-### 0.1.0 "Base"
+#### 0.1.0 "Base"
 
 - Initial API with support of User authentication and managing sensors
 
@@ -24,7 +24,7 @@ This API serves as a backend system designed to facilitate seamless communicatio
 
 - Minor fixes in user register
 
-### 0.2.0 "Sensors Data Update"
+#### 0.2.0 "Sensors Data Update"
 
 - Added timestamps to all Schemas.
 - User can now login with username and email simultaneously.
@@ -43,38 +43,38 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Added a description field to sensors.
 - Updated sensor PUT endpoint, allowing users to update only certain fields.
 
-#### 0.2.1
+##### 0.2.1
 
 - startDate and endDate parameters are now avaiable at /sensors/:id/data endpoint, parameters should be within user local time, hovever endpoint returns data with utc time instead.
 - Support for downloading data as csv from API (can be imported directly into Excel, PowerBI or other business inteligence aplications with link and Authentication token)
 
-### 0.3.0 "Organizations Update"
+##### 0.3.0 "Organizations Update"
 
 - Added organizations managing.
 
-#### 0.3.1
+##### 0.3.1
 
 - Added groups managing
 
-#### 0.3.2
+##### 0.3.2
 
 - Getting all users in certain group endpoint 
 - Getting all group sensors endpoint
 - Getting all groups that provided user is in endpoint
 - Changes in sensor creation code
 
-#### 0.3.3
+##### 0.3.3
 
 - Added endpoint for checking details of certain group
 - Return all group users endpoint returns now only few fields
 - PATCH and DELETE endpoint for groups created
 
-### 0.4.0 "Alert Update"
+#### 0.4.0 "Alert Update"
 
 - Add Alerts.
 - GET, POST, PATCH, DELETE endpoints for alerts added
 
-#### 0.4.1
+##### 0.4.1
 
 - Sending mails when alert condition met
 
@@ -83,9 +83,13 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Add official and custom types (typeless)
 - Email sends with current username now
 
-#### 0.6.0 "Sensor Update" (Current Version)
+#### 0.6.0 "Sensor Update"
 
 - Add possibility for changing sensor options remotely.
+
+##### 0.6.1 (Current Version)
+
+- Endpoint for JTW token verification
 
 ## Planned future updates
 

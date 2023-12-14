@@ -8,22 +8,22 @@ const router = express.Router();
 // Register a new user
 router.post('/register', async (req, res) => {
   try {
-      const { username, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-      const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
 
-      if (existingUser) {
-          return res.status(409).json({ error: 'User with the same email or username already exists' });
-      }
+    if (existingUser) {
+      return res.status(409).json({ error: 'User with the same email or username already exists' });
+    }
 
-      const user = await User.create({ username, email, password });
-      res.status(201).json({ message: 'User registered successfully', userId: user._id });
+    const user = await User.create({ username, email, password });
+    res.status(201).json({ message: 'User registered successfully', userId: user._id });
   } catch (error) {
-      res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
-// Login user and generate JWT token
+// Login user and return JWT token
 router.post('/login', async (req, res) => {
   try {
     const { identifier, password } = req.body;
@@ -48,6 +48,39 @@ router.post('/login', async (req, res) => {
     res.json({ token });
   } catch (error) {
     res.status(401).json({ error: error.message });
+  }
+});
+
+// Token validation endpoint
+router.post('/validateToken', async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Token is missing' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+
+      try {
+        const user = await User.findById(decoded.userId).exec();
+
+        if (!user) {
+          return res.status(401).json({ error: 'User not found' });
+        }
+
+        res.json({ message: 'Token is valid', userId: user._id });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
