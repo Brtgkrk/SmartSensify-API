@@ -16,7 +16,17 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ error: 'User with the same email or username already exists' });
     }
 
-    const user = await User.create({ username, email, password });
+    const user = await User.create({
+      username,
+      email,
+      password,
+      options: {
+        language: 'en',
+        timezone: 'UTC',
+        theme: 'light',
+      },
+    });
+    
     res.status(201).json({ message: 'User registered successfully', userId: user._id });
   } catch (error) {
     res.status(400).json({ error: error.message });

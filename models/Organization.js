@@ -44,7 +44,7 @@ const organizationSchema = new mongoose.Schema({
         type: String,
         maxlength: 50,
         description:
-        'City name',
+          'City name',
       },
       country: {
         type: String,
@@ -72,7 +72,11 @@ const organizationSchema = new mongoose.Schema({
       },
     },
   ],
-});
+},
+  {
+    timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
+  }
+);
 
 const Organization = mongoose.model('Organization', organizationSchema);
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Organization = require('../models/Organization');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -29,18 +30,18 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['standard', 'developer', 'admin'],
-    required: true,
+    default: 'standard'
   },
-  isActive: {
-    type: Boolean,
+  accountStatus: {
+    type: String,
     required: true,
-    default: true,
+    default: 'active',
   },
   emailVerified: {
     type: Boolean,
-    required: true,
+    default: false,
   },
-  lastLogin: {
+  lastLoginDate: {
     type: Date,
   },
   groups: {
@@ -57,42 +58,53 @@ const userSchema = new mongoose.Schema({
   customSensorTypes: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SensorType' }],
   },
-  preferences: [
-    {
-      timezone: {
-        type: String,
-      },
-      language: {
-        type: String,
-      },
-      profileImage: {
-        type: String,
-      },
+  options: {
+    timezone: {
+      type: String,
     },
-  ],
-  address: [
-    {
-      buildingNumber: {
-        type: Number,
-      },
-      street: {
-        type: String,
-        maxLength: 50,
-      },
-      city: {
-        type: String,
-        maxLength: 50,
-      },
-      country: {
-        type: String,
-        maxLength: 50,
-      },
-      postalCode: {
-        type: String,
-        maxLength: 20,
-      },
+    language: {
+      type: String,
     },
-  ],
+    profileImage: {
+      type: String,
+    },
+  },
+
+  address: {
+    buildingNumber: {
+      type: Number,
+    },
+    street: {
+      type: String,
+      maxLength: 50,
+    },
+    city: {
+      type: String,
+      maxLength: 50,
+    },
+    country: {
+      type: String,
+      maxLength: 50,
+    },
+    postalCode: {
+      type: String,
+      maxLength: 20,
+    },
+  },
+},
+  { timestamps: true }
+);
+
+userSchema.pre('save', async function (next) {
+  try {
+    if (this.isModified('password')) {
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password, salt);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 userSchema.statics.returnOrganization = async function (userId) {
