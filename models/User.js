@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     maxLength: 20,
+    validate: {
+      validator: function (value) {
+        return /^[a-zA-Z0-9]+$/.test(value);
+      },
+      message: 'Username must contain only letters and numbers.',
+    },
   },
   firstName: {
     type: String,
@@ -63,6 +69,9 @@ const userSchema = new mongoose.Schema({
       type: String,
     },
     language: {
+      type: String,
+    },
+    theme: {
       type: String,
     },
     profileImage: {

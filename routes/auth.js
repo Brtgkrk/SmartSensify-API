@@ -11,9 +11,12 @@ router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-
     if (existingUser) {
       return res.status(409).json({ error: 'User with the same email or username already exists' });
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long and include uppercase, lowercase, and numeric characters.' });
     }
 
     const user = await User.create({
@@ -26,7 +29,7 @@ router.post('/register', async (req, res) => {
         theme: 'light',
       },
     });
-    
+
     res.status(201).json({ message: 'User registered successfully', userId: user._id });
   } catch (error) {
     res.status(400).json({ error: error.message });

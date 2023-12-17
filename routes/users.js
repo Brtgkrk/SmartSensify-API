@@ -119,6 +119,8 @@ async function updateUser(user, body) {
   let isModified = false;
 
   if (email && email !== user.email) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return;
     user.email = email;
     user.emailVerified = false;
     isModified = true;
