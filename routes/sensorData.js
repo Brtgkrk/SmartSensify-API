@@ -1,5 +1,6 @@
 const express = require('express');
 const verifyToken = require('../middlewares/jwtAuthMiddleware');
+const emailService = require('../utils/emailService');
 const SensorData = require('../models/SensorData');
 const OfficialSensorTypes = require('../models/officialSensorTypes');
 const Alert = require('../models/Alert');
@@ -7,7 +8,6 @@ const Sensor = require('../models/Sensor');
 const User = require('../models/User');
 const Group = require('../models/Group');
 const router = express.Router();
-const nodemailer = require('nodemailer');
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
@@ -86,7 +86,7 @@ router.post('/', async (req, res) => {
               const subject = `Alert: ${reading.type} is ${alert.condition} ${alert.conditionNumber}`;
               const message = templateWithData/*`${reading.type} is ${alert.condition} ${alert.conditionNumber}: ${reading.value}`*/;
 
-              await sendEmail(ownerEmail, subject, message);
+              await emailService.sendEmail(ownerEmail, subject, message);
             }
 
             alert.sendings.push({
@@ -115,28 +115,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Set up nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
-// Function to send email
-const sendEmail = async (to, subject, htmlBody) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to,
-    subject,
-    html: htmlBody,
-  };
-
-  await transporter.sendMail(mailOptions);
-};
 
 module.exports = router;

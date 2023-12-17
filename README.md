@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.7.1**
+> Curent version of API: **0.7.2**
 
 ### Features
 
@@ -105,11 +105,16 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Return all users at /users endpoint when option getAllUsers is true and user has admin role
 - Update current logged user at /users endpoint
 
-##### 0.7.1 (Current Version)
+##### 0.7.1
 
 - Added theme to the user's settings
 - Better username and password validation
-- User can't change mail another existing mail
+- User can't change mail to another existing mail
+
+##### 0.7.2 (Current Version)
+
+- Mail verification
+- Password reset trought email
 
 ## Planned future updates
 

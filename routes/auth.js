@@ -1,9 +1,14 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const emailService = require('../utils/emailService');
 require('dotenv').config();
 const User = require('../models/User');
+const verifyToken = require('../middlewares/jwtAuthMiddleware');
 const router = express.Router();
+const { randomBytes } = require('crypto');
+
+// Endpoints //
 
 // Register a new user
 router.post('/register', async (req, res) => {
@@ -29,6 +34,8 @@ router.post('/register', async (req, res) => {
         theme: 'light',
       },
     });
+
+    await sendVerificationEmail(user);
 
     res.status(201).json({ message: 'User registered successfully', userId: user._id });
   } catch (error) {
@@ -97,8 +104,111 @@ router.post('/validateToken', async (req, res) => {
   }
 });
 
-router.get('/protected', (req, res) => {
+router.get('/protected', verifyToken, (req, res) => {
   res.json({ message: 'This is a protected route!' });
 });
+
+router.get('/verify/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Invalid verification token.' });
+    }
+
+    user.emailVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Email verified successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/resetPassword/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const user = await User.findOne({ verificationToken: token });
+
+    const { password } = req.body;
+
+    if (!user || !password) {
+      return res.status(400).json({ error: 'Invalid or expired reset token.' });
+    }
+
+    user.password = password;
+    user.verificationToken = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/verifyMail', verifyToken, async (req, res) => {
+  try {
+    const user = req.user;
+    if (user && !user.emailVerified) {
+      await sendVerificationEmail(user);
+      return res.status(200).json({ message: 'Verification email sent successfully.' });
+    }
+
+    return res.status(304).end();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/resetPassword', async (req, res) => {
+  const { identifier } = req.body;
+
+  const isEmail = /\S+@\S+\.\S+/.test(identifier);
+  let user;
+
+  if (isEmail) {
+    user = await User.findOne({ email: identifier });
+  } else {
+    user = await User.findOne({ username: identifier });
+  }
+
+  if (user && user.accountStatus === 'active') {
+    await sendPasswordResetMail(user);
+    return res.status(200).json({ message: 'Password reset email sent successfully.' })
+  }
+  return res.status(404).json({ message: 'User not found.' })
+});
+
+// Functions //
+
+const generateVerificationToken = () => {
+  return randomBytes(32).toString('hex');
+};
+
+const sendVerificationEmail = async (user) => {
+  const verificationToken = generateVerificationToken();
+  user.verificationToken = verificationToken;
+  await user.save();
+
+  const subject = 'Email Verification';
+  const htmlBody = `Click the following link to verify your email: <a href="${process.env.SERVER_URL}/auth/verify/${verificationToken}">Click</a>`;
+  await emailService.sendEmail(user.email, subject, htmlBody);
+};
+
+const sendPasswordResetMail = async (user) => {
+  const verificationToken = generateVerificationToken();
+  user.verificationToken = verificationToken;
+  await user.save();
+
+  const subject = 'Password reset';
+  const htmlBody = `Click the following link to reset your password: ${process.env.SERVER_URL}/auth/resetPassword/${verificationToken}`;
+  await emailService.sendEmail(user.email, subject, htmlBody);
+};
+
 
 module.exports = router;

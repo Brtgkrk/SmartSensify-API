@@ -100,6 +100,10 @@ const userSchema = new mongoose.Schema({
       maxLength: 20,
     },
   },
+  verificationToken: {
+    type: String,
+    maxLength: 100,
+  },
 },
   { timestamps: true }
 );
