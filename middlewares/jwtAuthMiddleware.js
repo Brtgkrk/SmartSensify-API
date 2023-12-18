@@ -13,7 +13,7 @@ const verifyToken = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
 
-    if (!user) {
+    if (!user || user.accountStatus !== 'active') {
       req.user = null;
     } else {
       req.user = user;

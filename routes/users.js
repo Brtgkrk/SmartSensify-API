@@ -12,7 +12,6 @@ const User = require('../models/User');
 router.get('/', verifyToken, async (req, res) => {
   try {
     const loggedUser = req.user;
-
     if (!loggedUser) {
       return res.status(401).json({ error: 'Not logged in' });
     }
@@ -44,7 +43,6 @@ router.get('/', verifyToken, async (req, res) => {
 router.patch('/', verifyToken, async (req, res) => {
   try {
     const user = req.user;
-
     if (!user) {
       return res.status(401).json({ error: 'Not logged in' });
     }
@@ -93,7 +91,43 @@ router.patch('/:identifier', verifyToken, async (req, res) => {
   }
 });
 
+// DELETE - Anonymize and deactivate current user
+router.delete('/', verifyToken, async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ error: 'Not logged in' });
+    }
+
+    try {
+      await softDeleteUser(user);
+      return res.status(204).end();
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // Functions //
+
+async function softDeleteUser(user) {
+  if (!user) return;
+
+  user.firstName = null;
+  user.lastName = null;
+  user.email = 'mail@example.com';
+  user.accountStatus = 'suspended';
+  user.emailVerified = false;
+  user.lastLoginDate = null;
+  user.premiumExpiration = null;
+  user.phone = null;
+  user.options = null;
+  user.address = null;
+
+  await user.save();
+}
 
 async function canProcessUser(user, loggedUser) {
 

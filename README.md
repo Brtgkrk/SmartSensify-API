@@ -4,11 +4,11 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.7.2**
+> Curent version of API: **0.7.3**
 
 ### Features
 
--  Provides user registration and authentication with option of managing their sensors
+- Provides user registration and authentication with option of managing their sensors
 - User profile options: language, timezone, theme, and accessibility preferences (high contrast mode and font size).
 - Monitoring of environmental sensors and their data.
 - User-friendly endpoints to access sensor data.
@@ -111,10 +111,14 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Better username and password validation
 - User can't change mail to another existing mail
 
-##### 0.7.2 (Current Version)
+##### 0.7.2
 
 - Mail verification
 - Password reset trought email
+
+##### 0.7.3 (Current Version)
+- Add possibility to delete account
+- Checking if account is suspended or banned while logging
 
 ## Planned future updates
 
