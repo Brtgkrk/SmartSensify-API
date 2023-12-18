@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Organization = require('../models/Organization');
 const bcrypt = require('bcrypt');
+const Sensor = require('../models/Sensor');
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -144,7 +145,7 @@ userSchema.statics.getAllSensors = async function (userId) {
 
     return sensorsDetails;
   } catch (error) {
-    throw new Error('Error fetching user sensors');
+    throw new Error(error);
   }
 };
 

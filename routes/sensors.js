@@ -21,7 +21,7 @@ router.get('/', verifyToken, async (req, res) => {
         } else {
             if (showOwned && !showPublic) {
                 // Show only user's owned sensors with the secretKey
-                const sensors = await Sensor.find({ _id: { $in: req.user.sensors } });
+                const sensors = await User.getAllSensors(req.user._id);
                 res.json({ sensors });
             } else if (!showOwned && showPublic) {
                 // Show only public sensors, removing the secretKey if the sensor is not owned by the user
@@ -57,7 +57,7 @@ router.get('/', verifyToken, async (req, res) => {
             }
         }
     } catch (error) {
-        res.status(500).json({ error: 'Server Error' });
+        res.status(500).json({ message: error.message });
     }
 });
 

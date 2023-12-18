@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.7.3**
+> Curent version of API: **0.7.4**
 
 ### Features
 
@@ -116,9 +116,14 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Mail verification
 - Password reset trought email
 
-##### 0.7.3 (Current Version)
+##### 0.7.3
+
 - Add possibility to delete account
 - Checking if account is suspended or banned while logging
+
+##### 0.7.4 (Current Version)
+
+- Some improvements in sensor requests
 
 ## Planned future updates
 
