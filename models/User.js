@@ -168,7 +168,7 @@ userSchema.statics.hasSensor = async function (userId, sensorId) {
 userSchema.statics.findByGroup = async function (groupId) {
   try {
     const user = await this.findOne({ 'groups': { $in: [groupId] } });
-    return user;
+    return user._id;
   } catch (error) {
     throw new Error(`Error finding user by group ID: ${error.message}`);
   }

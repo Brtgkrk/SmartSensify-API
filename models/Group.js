@@ -28,6 +28,19 @@ const groupSchema = new mongoose.Schema({
         }],
         description: 'Array of sensor IDs associated with the group',
     },
+    dataKeys: {
+        type: [{
+            name: {
+                type: String,
+                description: 'Name of the dataKey',
+            },
+            uid: {
+                type: String,
+                description: 'Unique identifier for the dataKey',
+            },
+        }],
+        description: 'Array of keys for data downloading from the group',
+    },
 });
 
 groupSchema.statics.findBySensor = async function (sensorId) {
