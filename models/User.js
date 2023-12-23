@@ -161,7 +161,7 @@ userSchema.statics.hasSensor = async function (userId, sensorId) {
 
     return false;
   } catch (error) {
-    throw new Error('Error checking if user has a certain sensor');
+    throw new Error('Error checking if user has a certain sensor'+ error.message);
   }
 };
 

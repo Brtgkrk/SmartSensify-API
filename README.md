@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.7.4**
+> Curent version of API: **0.8.0**
 
 ### Features
 
@@ -121,9 +121,14 @@ This API serves as a backend system designed to facilitate seamless communicatio
 - Add possibility to delete account
 - Checking if account is suspended or banned while logging
 
-##### 0.7.4 (Current Version)
+##### 0.7.4
 
 - Some improvements in sensor requests
+
+##### 0.8.0 "Data Keys Update" (Current Version)
+
+- Data keys for requesting sensor's data added
+- Possibility of management of data keys
 
 ## Planned future updates
 

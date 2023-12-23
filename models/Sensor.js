@@ -21,6 +21,19 @@ const sensorSchema = new mongoose.Schema({
         maxlength: 50,
         description: 'Secret key for the device',
     },
+    dataKeys: {
+        type: [{
+            name: {
+                type: String,
+                description: 'Name of the dataKey',
+            },
+            uid: {
+                type: String,
+                description: 'Unique identifier for the dataKey',
+            },
+        }],
+        description: 'Array of keys for data downloading from the sensor',
+    },
     isPublic: {
         type: Boolean,
         description: 'Indicates whether the sensor is public',

@@ -6,6 +6,7 @@ const Sensor = require('../models/Sensor');
 const SensorData = require('../models/SensorData');
 const User = require('../models/User');
 const Group = require('../models/Group');
+const { v4: uuidv4 } = require('uuid');
 
 const router = express.Router();
 
@@ -80,12 +81,12 @@ router.get('/:sensorId', verifyToken, async (req, res) => {
             return res.json({ sensor: sanitizedSensor });
         }
 
-        if (!User.hasSensor(req.user._id, sensorId) && sensor.isPublic) {
+        if (await !User.hasSensor(req.user._id, sensorId) && sensor.isPublic) {
             const sanitizedSensor = { ...sensor._doc, secretKey: undefined };
             return res.json({ sensor: sanitizedSensor });
         }
 
-        if (!User.hasSensor(req.user._id, sensorId)) {
+        if (await !User.hasSensor(req.user._id, sensorId)) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
@@ -172,7 +173,7 @@ router.patch('/:sensorId/settings', verifyToken, async (req, res) => {
             return res.status(404).json({ error: 'Sensor not found' });
         }
 
-        if (!req.user || !User.hasSensor(req.user._id, sensorId)) {
+        if (!req.user || await !User.hasSensor(req.user._id, sensorId)) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
@@ -225,18 +226,20 @@ router.delete('/:sensorId', verifyToken, async (req, res) => {
     }
 });
 
+// Get data from the sensor
 router.get('/:sensorId/data', verifyToken, async (req, res) => {
     try {
         const { sensorId } = req.params;
         const { startDate, endDate, type, location, format } = req.query;
         const sensor = await Sensor.findById(sensorId);
+        const dataKey = req.headers['dataKey'];
 
         // If the sensor is not public, check user authentication
-        if (!sensor.isPublic && !req.user) {
+        if (!sensor.isPublic || !req.user || !dataKey) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
-        if (!sensor.isPublic && !req.user.sensors.includes(sensorId)) {
+        if (!sensor.isPublic || !req.user.sensors.includes(sensorId) || !sensor.dataKeys.includes(dataKey)) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
@@ -303,6 +306,63 @@ router.get('/:sensorId/data', verifyToken, async (req, res) => {
         }
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+});
+
+// Sensor Data Keys //
+
+// POST - Add new dataKey into certain sensor
+router.post('/:sensorId/dataKeys', verifyToken, async (req, res) => {
+    try {
+        const { sensorId } = req.params;
+        const { name } = req.body;
+        const sensor = await Sensor.findById(sensorId);
+
+        if (!sensor || !req.user || !await User.hasSensor(req.user._id, sensorId)) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        const dataKey = {
+            name: name,
+            uid: uuidv4(),
+        };
+        sensor.dataKeys.push(dataKey);
+        await sensor.save();
+
+        res.status(201).json({ message: 'DataKey added successfully', dataKey });
+
+    } catch (error) {
+        console.error('Error adding dataKey:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// DELETE - Delete certain dataKey
+router.delete('/:sensorId/dataKeys', verifyToken, async (req, res) => {
+    try {
+        const { sensorId } = req.params;
+        const { id } = req.body;
+        const sensor = await Sensor.findById(sensorId);
+
+        if (!sensor || !req.user || !await User.hasSensor(req.user._id, sensorId)) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        if (!id || !sensor.dataKeys.some(dataKey => dataKey._id.toString() === id.toString())) {
+            return res.status(400).json({ error: 'Invalid dataKey' });
+        }
+
+        await Sensor.updateOne(
+            { _id: sensorId },
+            { $pull: { dataKeys: { _id: id } } }
+        );
+        await sensor.save();
+
+        res.json({ message: 'DataKey deleted successfully', id });
+
+    } catch (error) {
+        console.error('Error deleting dataKey:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
