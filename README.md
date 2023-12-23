@@ -4,7 +4,7 @@
 
 This API serves as a backend system designed to facilitate seamless communication between frontend applications, such as web and mobile apps, and external IoT devices (sensors). It provides functionalities for environment monitoring, allowing users to interact with a wide range of IoT devices and manage user data securely.
 
-> Curent version of API: **0.8.0**
+> Curent version of API: **0.8.1**
 
 ### Features
 
@@ -125,10 +125,16 @@ This API serves as a backend system designed to facilitate seamless communicatio
 
 - Some improvements in sensor requests
 
-##### 0.8.0 "Data Keys Update" (Current Version)
+#### 0.8.0 "Data Keys Update"
 
 - Data keys for requesting sensor's data added
 - Possibility of management of data keys
+
+##### 0.8.1 (Current Version)
+
+- Some /sensors endpoint bugs fixed
+- GET /sensors endpoint returns now only certain fields
+- Getting data with data key is now working
 
 ## Planned future updates
 

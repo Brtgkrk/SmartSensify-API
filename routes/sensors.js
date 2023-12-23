@@ -15,10 +15,18 @@ router.get('/', verifyToken, async (req, res) => {
     try {
         const { showOwned, showPublic } = req.query;
 
+        // If the user is not logged in, return only public sensors
         if (!req.user) {
-            // If the user is not logged in, return only public sensors without the secretKey
-            const sensors = await Sensor.find({ isPublic: true }).select('-secretKey');
-            res.json({ sensors });
+            const sensors = await Sensor.find({ isPublic: true });
+
+            const selectedSensors = sensors.map(sensor => ({
+                _id: sensor._id,
+                name: sensor.name,
+                types: sensor.types,
+                isPublic: sensor.isPublic,
+            }));
+            
+            res.json({ selectedSensors });
         } else {
             if (showOwned && !showPublic) {
                 // Show only user's owned sensors with the secretKey
@@ -232,14 +240,14 @@ router.get('/:sensorId/data', verifyToken, async (req, res) => {
         const { sensorId } = req.params;
         const { startDate, endDate, type, location, format } = req.query;
         const sensor = await Sensor.findById(sensorId);
-        const dataKey = req.headers['dataKey'];
+        const dataKey = req.get('dataKey');
 
         // If the sensor is not public, check user authentication
-        if (!sensor.isPublic || !req.user || !dataKey) {
-            return res.status(403).json({ error: 'Access denied' });
+        if (!sensor || (!dataKey && !req.user)) {
+            return res.status(404).json({ error: 'Not found' });
         }
 
-        if (!sensor.isPublic || !req.user.sensors.includes(sensorId) || !sensor.dataKeys.includes(dataKey)) {
+        if (!sensor.dataKeys.some(key => key.uid === dataKey) && (!sensor.isPublic && !await User.hasSensor(req.user._id, sensorId))) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
